@@ -1,0 +1,93 @@
+"""Jarvis Models Subsystem: Taxonomy, Latency Benchmarking, Dynamic Routing, and Mock Provider."""
+
+from jarvis.models.taxonomy import (
+    DEFAULT_MODEL_CATALOG,
+    ModelCapability,
+    ModelLatencyMetrics,
+    ModelProfile,
+    ModelRegistry,
+    ModelTier,
+    TIER_DEFINITIONS,
+    TierDefinition,
+    classify_model_tier,
+    default_registry,
+)
+from jarvis.models.benchmark import (
+    BenchmarkConfig,
+    LatencyBenchmarkHarness,
+    LatencySample,
+    RollingLatencyStats,
+    measure_dns_latency,
+    measure_streaming_probe,
+    measure_tcp_latency,
+)
+from jarvis.models.router import (
+    BenchmarkResultList,
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitBreakerState,
+    CircuitState,
+    DeterministicModelRouter,
+    DynamicModelRouter,
+    GenerateResult,
+    ModelRouter,
+    ModelRouterProtocol,
+    NoViableModelError,
+)
+from jarvis.models.mock_provider import (
+    DEFAULT_TIER_PROFILES,
+    MockConnectionTimeoutError,
+    MockFailureType,
+    MockInternalServerError,
+    MockProviderError,
+    MockRateLimitError,
+    MockSocketDroppedError,
+    SyntheticLatencyModelProvider,
+    SyntheticLatencyProfile,
+    SyntheticModelProvider,
+)
+
+__all__ = [
+    # Taxonomy
+    "ModelTier",
+    "ModelCapability",
+    "TierDefinition",
+    "TIER_DEFINITIONS",
+    "ModelProfile",
+    "ModelLatencyMetrics",
+    "classify_model_tier",
+    "ModelRegistry",
+    "DEFAULT_MODEL_CATALOG",
+    "default_registry",
+    # Benchmark
+    "BenchmarkConfig",
+    "LatencySample",
+    "RollingLatencyStats",
+    "LatencyBenchmarkHarness",
+    "measure_dns_latency",
+    "measure_tcp_latency",
+    "measure_streaming_probe",
+    # Router
+    "CircuitBreakerState",
+    "CircuitState",
+    "CircuitBreakerConfig",
+    "CircuitBreaker",
+    "DynamicModelRouter",
+    "ModelRouter",
+    "DeterministicModelRouter",
+    "ModelRouterProtocol",
+    "NoViableModelError",
+    "GenerateResult",
+    "BenchmarkResultList",
+    # Mock Provider
+    "MockFailureType",
+    "MockProviderError",
+    "MockInternalServerError",
+    "MockRateLimitError",
+    "MockConnectionTimeoutError",
+    "MockSocketDroppedError",
+    "SyntheticLatencyProfile",
+    "SyntheticLatencyModelProvider",
+    "SyntheticModelProvider",
+    "DEFAULT_TIER_PROFILES",
+]

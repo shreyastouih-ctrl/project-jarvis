@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. // Holographic Interface</title>
+    <link rel="stylesheet" href="hud.css">
+</head>
+<body class="hud-body">
+    <!-- Holographic Background Scanline & Grid Overlays -->
+    <div class="hud-scanlines" aria-hidden="true"></div>
+    <div class="hud-vignette" aria-hidden="true"></div>
+
+    <div class="hud-container">
+        <!-- TOP HUD BAR: Header & Status -->
+        <header class="hud-header">
+            <div class="header-left">
+                <div class="system-branding">
+                    <span class="stark-logo">STARK INDUSTRIES</span>
+                    <h1 class="hud-title">J.A.R.V.I.S. <span class="version-tag">MARK VII</span></h1>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-dot online" id="connection-dot"></span>
+                    <span class="status-label" id="connection-status">ONLINE // WS LINKED</span>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="state-pill" id="state-container">
+                    <span class="state-badge-label">STATE:</span>
+                    <span class="state-badge-value" id="assistant-state">IDLE</span>
+                </div>
+                <div class="latency-pill">
+                    <span class="latency-label">FAST-PATH TTFT:</span>
+                    <span class="latency-value" id="latency-badge">42 ms</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="hud-clock" id="hud-clock">00:00:00 UTC</div>
+                <button id="busy-toggle-btn" class="hud-button busy-toggle" title="Toggle Busy Screening Mode">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-label" id="busy-label">MODE: AVAILABLE</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN HUD GRID -->
+        <main class="hud-grid">
+            <!-- LEFT PANEL: Real-Time Hardware Telemetry Gauges -->
+            <section class="hud-panel telemetry-panel" id="telemetry-panel">
+                <div class="panel-header">
+                    <span class="bracket">[</span>
+                    <h2 class="panel-title">SYSTEM TELEMETRY</h2>
+                    <span class="bracket">]</span>
+                </div>
+
+                <div class="gauges-container">
+                    <!-- CPU Gauge -->
+                    <div class="telemetry-gauge" id="cpu-gauge">
+                        <div class="gauge-ring-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="42" />
+                                <circle class="gauge-bar" id="cpu-bar" cx="50" cy="50" r="42" />
+                            </svg>
+                            <div class="gauge-readout">
+                                <span class="gauge-val" id="cpu-val">0.0</span><span class="gauge-unit">%</span>
+                            </div>
+                        </div>
+                        <span class="gauge-label">CPU LOAD</span>
+                    </div>
+
+                    <!-- RAM Gauge -->
+                    <div class="telemetry-gauge" id="ram-gauge">
+                        <div class="gauge-ring-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="42" />
+                                <circle class="gauge-bar" id="ram-bar" cx="50" cy="50" r="42" />
+                            </svg>
+                            <div class="gauge-readout">
+                                <span class="gauge-val" id="ram-val">0.0</span><span class="gauge-unit">%</span>
+                            </div>
+                        </div>
+                        <span class="gauge-label">MEMORY</span>
+                    </div>
+
+                    <!-- Network Ping Gauge -->
+                    <div class="telemetry-gauge" id="ping-gauge">
+                        <div class="gauge-ring-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="42" />
+                                <circle class="gauge-bar" id="ping-bar" cx="50" cy="50" r="42" />
+                            </svg>
+                            <div class="gauge-readout">
+                                <span class="gauge-val" id="ping-val">0</span><span class="gauge-unit">ms</span>
+                            </div>
+                        </div>
+                        <span class="gauge-label">NET PING</span>
+                    </div>
+
+                    <!-- Battery Gauge -->
+                    <div class="telemetry-gauge" id="battery-gauge">
+                        <div class="gauge-ring-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="42" />
+                                <circle class="gauge-bar gauge-gold" id="battery-bar" cx="50" cy="50" r="42" />
+                            </svg>
+                            <div class="gauge-readout">
+                                <span class="gauge-val gauge-gold" id="battery-val">100</span><span class="gauge-unit gauge-gold">%</span>
+                            </div>
+                        </div>
+                        <span class="gauge-label gauge-gold">ARC POWER</span>
+                    </div>
+                </div>
+
+                <!-- Telemetry Diagnostics Readout -->
+                <div class="telemetry-details">
+                    <div class="telem-row">
+                        <span class="telem-key">AUDIO RMS:</span>
+                        <span class="telem-val" id="audio-rms-val">0.000</span>
+                    </div>
+                    <div class="telem-row">
+                        <span class="telem-key">CORE VOLTAGE:</span>
+                        <span class="telem-val">3.82 MV</span>
+                    </div>
+                    <div class="telem-row">
+                        <span class="telem-key">BUS REFRESH:</span>
+                        <span class="telem-val">10 HZ</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER VIEWPORT: Arc Reactor Orbital Rings & Audio Oscilloscope -->
+            <section class="hud-center-viewport">
+                <!-- Arc Reactor Canvas Viewport -->
+                <div class="arc-reactor-wrapper" id="arc-reactor">
+                    <div class="reactor-hud-crosshairs"></div>
+                    <canvas id="orbital-rings" width="460" height="460"></canvas>
+                    <div class="reactor-subtext">
+                        <div class="reactor-title">PALLADIUM-CORE ARC REACTOR</div>
+                        <div class="reactor-subtitle" id="reactor-status-text">OUTPUT: 100% // HARMONICS OPTIMAL</div>
+                    </div>
+                </div>
+
+                <!-- 32-Band Audio Frequency Oscilloscope -->
+                <div class="oscilloscope-card">
+                    <div class="card-header">
+                        <span class="bracket">[</span>
+                        <span class="card-title">ACOUSTIC FREQUENCY OSCILLOSCOPE // 32-BAND FFT</span>
+                        <span class="bracket">]</span>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="oscilloscope" width="640" height="120"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Smart Devices & Telephony Call Screening -->
+            <section class="hud-panel aux-panel">
+                <!-- Smart Home Quick-Status Cards -->
+                <div class="sub-panel" id="smart-home-panel">
+                    <div class="panel-header">
+                        <span class="bracket">[</span>
+                        <h2 class="panel-title">SMART AUTOMATION</h2>
+                        <span class="bracket">]</span>
+                    </div>
+                    <div class="device-grid" id="device-container">
+                        <div class="device-card active" data-id="light.living_room">
+                            <div class="device-icon">💡</div>
+                            <div class="device-info">
+                                <div class="device-name">Living Room Light</div>
+                                <div class="device-state">ON • 80%</div>
+                            </div>
+                        </div>
+                        <div class="device-card" data-id="thermostat.main">
+                            <div class="device-icon">🌡️</div>
+                            <div class="device-info">
+                                <div class="device-name">Climate Control</div>
+                                <div class="device-state">72.0°F • AUTO</div>
+                            </div>
+                        </div>
+                        <div class="device-card active" data-id="lock.front_door">
+                            <div class="device-icon">🔒</div>
+                            <div class="device-info">
+                                <div class="device-name">Front Perimeter</div>
+                                <div class="device-state">LOCKED</div>
+                            </div>
+                        </div>
+                        <div class="device-card" data-id="switch.workshop_power">
+                            <div class="device-icon">⚡</div>
+                            <div class="device-info">
+                                <div class="device-name">Workshop Grid</div>
+                                <div class="device-state">ONLINE</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call Screening Overlay / Card -->
+                <div class="sub-panel" id="call-screening-widget">
+                    <div class="panel-header">
+                        <span class="bracket">[</span>
+                        <h2 class="panel-title">COMMUNICATION PROXY</h2>
+                        <span class="bracket">]</span>
+                    </div>
+                    <div class="call-card" id="call-card">
+                        <div class="call-header">
+                            <span class="call-pulse"></span>
+                            <span class="caller-id" id="caller-name">NO ACTIVE CALL</span>
+                            <span class="urgency-badge" id="call-urgency">STANDBY</span>
+                        </div>
+                        <div class="call-transcript" id="call-transcript-box">
+                            <p class="transcript-line system">AI Proxy standby. Incoming calls screened automatically in Busy Mode.</p>
+                        </div>
+                        <button class="takeover-btn" id="call-takeover-btn" disabled>
+                            TAKE OVER CALL
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- BOTTOM HUD BAR: Live Voice Transcript Terminal -->
+        <footer class="hud-footer">
+            <div class="terminal-panel">
+                <div class="terminal-header">
+                    <span class="terminal-title">VOICE INTERACTION TRANSCRIPT & EVENT LOG</span>
+                    <span class="terminal-clear" id="terminal-clear-btn">[CLEAR]</span>
+                </div>
+                <div class="terminal-body" id="transcript-terminal">
+                    <div class="log-entry system">
+                        <span class="timestamp">[INIT]</span>
+                        <span class="sender">SYSTEM:</span>
+                        <span class="message">JARVIS Mark VII Core Online. Voice capture active. Awaiting your command, sir.</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="arc_reactor.js"></script>
+    <script src="visualizer.js"></script>
+</body>
+</html>
