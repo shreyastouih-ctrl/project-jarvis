@@ -48,10 +48,10 @@ if errorlevel 1 (
 )
 
 echo.
-echo [4/4] Creating Desktop Shortcut...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$ws = New-Object -ComObject WScript.Shell; $desk = [Environment]::GetFolderPath('Desktop'); $s = $ws.CreateShortcut([System.IO.Path]::Combine($desk, 'JARVIS AI.lnk')); $s.TargetPath = '%~dp0start_jarvis.bat'; $s.WorkingDirectory = '%~dp0'; $s.Description = 'Launch J.A.R.V.I.S. AI Assistant'; $s.Save()" 2>nul
-if exist "%USERPROFILE%\Desktop\JARVIS AI.lnk" (
-    echo [OK] Shortcut created on your Desktop: "JARVIS AI"
+echo [4/4] Creating J.A.R.V.I.S. Desktop & Start Menu App Shortcuts...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ws = New-Object -ComObject WScript.Shell; $desk = [Environment]::GetFolderPath('Desktop'); $programs = [Environment]::GetFolderPath('Programs'); $s = $ws.CreateShortcut([System.IO.Path]::Combine($desk, 'J.A.R.V.I.S. AI.lnk')); $s.TargetPath = '%~dp0start_jarvis.bat'; $s.WorkingDirectory = '%~dp0'; if (Test-Path '%~dp0jarvis.ico') { $s.IconLocation = '%~dp0jarvis.ico' }; $s.Description = 'Iron Man J.A.R.V.I.S. AI Assistant'; $s.Save(); $s2 = $ws.CreateShortcut([System.IO.Path]::Combine($programs, 'J.A.R.V.I.S. AI.lnk')); $s2.TargetPath = '%~dp0start_jarvis.bat'; $s2.WorkingDirectory = '%~dp0'; if (Test-Path '%~dp0jarvis.ico') { $s2.IconLocation = '%~dp0jarvis.ico' }; $s2.Description = 'Iron Man J.A.R.V.I.S. AI Assistant'; $s2.Save()" 2>nul
+if exist "%USERPROFILE%\Desktop\J.A.R.V.I.S. AI.lnk" (
+    echo [OK] App shortcut created on your Desktop: "J.A.R.V.I.S. AI"
 ) else (
     echo [INFO] Shortcut creation completed.
 )

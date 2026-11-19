@@ -119,6 +119,19 @@ async def run_assistant(args: argparse.Namespace) -> None:
     logger.info("State: %s", state_machine.current_state.value)
     logger.info("Press Ctrl+C to stop.")
 
+    # Start Desktop HUD server & App window if not headless
+    server_thread = None
+    browser_proc = None
+    if not args.headless:
+        try:
+            from jarvis.ui.desktop_launcher import launch_desktop
+            from jarvis.ui.server import create_app
+            hud_app = create_app(event_bus=event_bus, state_machine=state_machine)
+            server_thread, browser_proc = launch_desktop(app=hud_app, port=config.ui_port)
+            logger.info("Holographic HUD launched in standalone desktop app mode on port %d", config.ui_port)
+        except Exception as err:
+            logger.warning("Could not launch desktop HUD GUI window: %s. Continuing in CLI mode.", err)
+
     await orchestrator.start()
 
     try:
@@ -130,6 +143,13 @@ async def run_assistant(args: argparse.Namespace) -> None:
     except asyncio.CancelledError:
         pass
     finally:
+        if server_thread:
+            server_thread.stop()
+        if browser_proc:
+            try:
+                browser_proc.terminate()
+            except Exception:
+                pass
         await orchestrator.stop()
         await event_bus.close()
         logger.info("J.A.R.V.I.S. shutdown complete.")
