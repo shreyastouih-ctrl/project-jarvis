@@ -85,6 +85,23 @@ async def run_assistant(args: argparse.Namespace) -> None:
         tts=tts_engine,
     )
 
+    # Plug in Live ChatGPT / Groq / Fast-Reflex Brain (Feature from tutorial video)
+    from jarvis.models.live_provider import LiveLLMProvider
+    live_llm = LiveLLMProvider()
+
+    async def jarvis_brain(transcript: str) -> str:
+        # Check direct local system actions first (instant reflex)
+        reflex = orchestrator._generate_default_reflex(transcript)
+        if not reflex.startswith("Understood, sir. Processing your request:"):
+            return reflex
+        # Query ChatGPT / Groq / Ollama for full voice conversation
+        llm_reply = await live_llm.generate(transcript)
+        if llm_reply:
+            return llm_reply
+        return reflex
+
+    orchestrator.set_response_generator(jarvis_brain)
+
     # Log state transitions
     async def on_state_changed(event: Event) -> None:
         logger.info(
