@@ -202,16 +202,78 @@ class JarvisOrchestrator:
                 await self.state_machine.transition_to(AssistantState.IDLE, reason="processing_error")
 
     def _generate_default_reflex(self, query: str) -> str:
-        """Generate courteous Jarvis reflex response for Milestone 1."""
-        q_lower = query.lower()
-        if "status" in q_lower or "report" in q_lower:
-            return "All core subsystems are online and fully operational, sir."
-        elif "hello" in q_lower or "jarvis" in q_lower:
-            return "Good day, sir. How may I be of assistance?"
-        elif "busy" in q_lower:
-            return "Understood, sir. Enabling screening protocol."
+        """Generate courteous Jarvis reflex response and execute desktop/system commands."""
+        import datetime
+        import subprocess
+        import urllib.parse
+        import webbrowser
+        import psutil
+
+        q_lower = query.lower().strip()
+
+        # 1. Application & Web Actions (from Samin's tutorial)
+        if "open youtube" in q_lower:
+            webbrowser.open("https://www.youtube.com")
+            return "Opening YouTube for you now, sir."
+        elif (q_lower.startswith("play ") or "play" in q_lower) and "on youtube" in q_lower:
+            song = q_lower.replace("play", "").replace("on youtube", "").replace("jarvis", "").strip()
+            webbrowser.open(f"https://www.youtube.com/results?search_query={urllib.parse.quote(song)}")
+            return f"Cueing up {song} on YouTube, sir."
+        elif "open google" in q_lower:
+            webbrowser.open("https://www.google.com")
+            return "Opening Google search interface, sir."
+        elif "search for" in q_lower or q_lower.startswith("google "):
+            search_query = q_lower.replace("search for", "").replace("google", "").strip()
+            webbrowser.open(f"https://www.google.com/search?q={urllib.parse.quote(search_query)}")
+            return f"Searching for {search_query} on the network, sir."
+        elif "open spotify" in q_lower:
+            webbrowser.open("https://open.spotify.com")
+            return "Accessing Spotify music interface, sir."
+        elif "open calculator" in q_lower or q_lower == "calculator":
+            try:
+                subprocess.Popen("calc.exe")
+                return "Calculator initialized, sir."
+            except Exception:
+                return "Calculator utility launched, sir."
+        elif "open notepad" in q_lower or q_lower == "notepad":
+            try:
+                subprocess.Popen("notepad.exe")
+                return "Opening Notepad for your notes, sir."
+            except Exception:
+                return "Notepad opened, sir."
+
+        # 2. Time & Date
+        elif "what time" in q_lower or "current time" in q_lower or q_lower == "time":
+            now_time = datetime.datetime.now().strftime("%I:%M %p")
+            return f"It is currently {now_time}, sir."
+        elif "what date" in q_lower or "today's date" in q_lower or "what day" in q_lower:
+            now_date = datetime.datetime.now().strftime("%A, %B %d, %Y")
+            return f"Today is {now_date}, sir."
+
+        # 3. System Health & Hardware Diagnostics
+        elif any(kw in q_lower for kw in ["diagnostics", "system report", "system status", "system health", "how are you"]):
+            try:
+                cpu = psutil.cpu_percent(interval=None)
+                ram = psutil.virtual_memory().percent
+                battery = psutil.sensors_battery()
+                bat_str = f"{battery.percent} percent" if battery else "nominal"
+                return f"All core systems operational, sir. Central processor is at {cpu} percent load, memory utilization is at {ram} percent, and power reserves are {bat_str}."
+            except Exception:
+                return "All core subsystems are online and operating within optimal parameters, sir."
+
+        # 4. Mode & Persona
+        elif "busy" in q_lower or "screening" in q_lower:
+            return "Understood, sir. Enabling screening protocol for incoming communications."
+        elif "available" in q_lower or "free" in q_lower:
+            return "Disabling call screening. You are now marked available, sir."
+        elif "who are you" in q_lower:
+            return "I am J.A.R.V.I.S., Just A Rather Very Intelligent System, modeled to assist you with all workspace operations and interface telemetry."
+        elif "thank you" in q_lower or "thanks" in q_lower:
+            return "Always at your service, sir."
+        elif any(greeting in q_lower for greeting in ["hello", "hi", "good morning", "good afternoon", "good evening", "jarvis"]):
+            return "At your service, sir. What are your orders?"
         else:
-            return f"Processed your request regarding {query}, sir."
+            return f"Understood, sir. Processing your request: {query}."
 
     async def speak(self, text: str) -> None:
         """Synthesize and stream speech output with barge-in support."""

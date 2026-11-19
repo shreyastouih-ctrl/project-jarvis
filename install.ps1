@@ -9,7 +9,7 @@
 [CmdletBinding()]
 param()
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
 Set-Location -Path $PSScriptRoot
 
 Write-Host "========================================================" -ForegroundColor Cyan
@@ -21,8 +21,7 @@ Write-Host ""
 # 1. Check Python
 $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
 if (-not $pythonCmd) {
-    Write-Host "[ERROR] Python was not found in PATH." -ForegroundColor Red
-    Write-Host "Please install Python 3.11+ from https://www.python.org/downloads/." -ForegroundColor Yellow
+    Write-Host "[ERROR] Python is not installed or not in PATH. Please install Python 3.11+." -ForegroundColor Red
     exit 1
 }
 
@@ -31,36 +30,52 @@ Write-Host "[1/4] Found Python: $pyVer" -ForegroundColor Green
 
 # 2. Virtual Environment
 Write-Host "[2/4] Setting up Python virtual environment (.venv)..." -ForegroundColor Yellow
-if (-not (Test-Path ".venv")) {
+$VENV_DIR = Join-Path $PSScriptRoot '.venv'
+if (-not (Test-Path $VENV_DIR)) {
     & python -m venv .venv
     Write-Host "[OK] Virtual environment created." -ForegroundColor Green
 } else {
     Write-Host "[OK] Existing virtual environment detected." -ForegroundColor Green
 }
 
-$venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
+$PYTHON_EXE = Join-Path $VENV_DIR "Scripts\python.exe"
 
 # 3. Dependencies
 Write-Host "[3/4] Installing dependencies & package..." -ForegroundColor Yellow
-& $venvPython -m pip install --upgrade pip --quiet
-& $venvPython -m pip install -r requirements.txt --quiet
-& $venvPython -m pip install -e . --quiet
+& $PYTHON_EXE -m pip install --upgrade pip --quiet
+& $PYTHON_EXE -m pip install -r requirements.txt --quiet
+& $PYTHON_EXE -m pip install -e . --quiet
 Write-Host "[OK] Dependencies installed successfully." -ForegroundColor Green
 
-# 4. Desktop Shortcut
-Write-Host "[4/4] Creating Desktop Shortcut..." -ForegroundColor Yellow
+# 4. Desktop & Start Menu Shortcut
+Write-Host "[4/4] Creating J.A.R.V.I.S. App Shortcut with Arc-Reactor Icon..." -ForegroundColor Yellow
 try {
     $ws = New-Object -ComObject WScript.Shell
     $desktop = [Environment]::GetFolderPath("Desktop")
-    $shortcutPath = Join-Path $desktop "JARVIS AI.lnk"
+    $programs = [Environment]::GetFolderPath("Programs")
+    $shortcutPath = Join-Path $desktop "J.A.R.V.I.S. AI.lnk"
     $targetBat = Join-Path $PSScriptRoot "start_jarvis.bat"
-    
+    $icoPath = Join-Path $PSScriptRoot "jarvis.ico"
+
     $shortcut = $ws.CreateShortcut($shortcutPath)
     $shortcut.TargetPath = $targetBat
     $shortcut.WorkingDirectory = $PSScriptRoot
-    $shortcut.Description = "Launch J.A.R.V.I.S. AI Assistant"
+    if (Test-Path $icoPath) {
+        $shortcut.IconLocation = $icoPath
+    }
+    $shortcut.Description = "Iron Man J.A.R.V.I.S. AI Assistant"
     $shortcut.Save()
-    Write-Host "[OK] Desktop shortcut created at $shortcutPath" -ForegroundColor Green
+
+    $shortcut2 = $ws.CreateShortcut((Join-Path $programs "J.A.R.V.I.S. AI.lnk"))
+    $shortcut2.TargetPath = $targetBat
+    $shortcut2.WorkingDirectory = $PSScriptRoot
+    if (Test-Path $icoPath) {
+        $shortcut2.IconLocation = $icoPath
+    }
+    $shortcut2.Description = "Iron Man J.A.R.V.I.S. AI Assistant"
+    $shortcut2.Save()
+
+    Write-Host "[OK] J.A.R.V.I.S. App shortcut created on Desktop and Start Menu!" -ForegroundColor Green
 } catch {
     Write-Host "[WARN] Could not create Desktop shortcut automatically: $_" -ForegroundColor Yellow
 }
@@ -69,7 +84,7 @@ Write-Host ""
 Write-Host "========================================================" -ForegroundColor Cyan
 Write-Host "    SUCCESS: J.A.R.V.I.S. Installation Complete!       " -ForegroundColor Green
 Write-Host "========================================================" -ForegroundColor Cyan
-Write-Host "  * Desktop Shortcut: JARVIS AI.lnk" -ForegroundColor White
+Write-Host "  * App Shortcut    : J.A.R.V.I.S. AI.lnk" -ForegroundColor White
 Write-Host "  * Holographic HUD : http://localhost:8000" -ForegroundColor White
 Write-Host "  * Auto-Updater    : Active (checks GitHub every 90 days)" -ForegroundColor White
 Write-Host "========================================================" -ForegroundColor Cyan

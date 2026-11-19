@@ -299,7 +299,7 @@ class TestWindowsInstallerScripts:
 
     @pytest.fixture
     def root_dir(self) -> Path:
-        return Path(r"C:\Users\shrey\teamwork_projects\jarvis")
+        return Path(__file__).resolve().parent.parent.parent
 
     def test_powershell_syntax_ast_validation(self, root_dir: Path) -> None:
         """Validate install.ps1 using PowerShell's native AST parser with 0 errors."""

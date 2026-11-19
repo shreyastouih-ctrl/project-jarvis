@@ -1,3 +1,56 @@
+class JarvisSFX {
+    constructor() {
+        this.ctx = null;
+    }
+    init() {
+        if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+        }
+    }
+    play(type = 'startup') {
+        try {
+            this.init();
+            if (!this.ctx) return;
+            if (this.ctx.state === 'suspended') this.ctx.resume();
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            if (type === 'startup') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.35);
+                gain.gain.setValueAtTime(0.01, now);
+                gain.gain.linearRampToValueAtTime(0.12, now + 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'listening') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.setValueAtTime(880.0, now + 0.07);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                osc.start(now);
+                osc.stop(now + 0.22);
+            } else if (type === 'done') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, now);
+                osc.frequency.setValueAtTime(440, now + 0.05);
+                gain.gain.setValueAtTime(0.07, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                osc.start(now);
+                osc.stop(now + 0.18);
+            }
+        } catch (e) {
+            console.warn('[JarvisSFX] Audio error:', e);
+        }
+    }
+}
+
 /**
  * Dynamic Audio Oscilloscope & Telemetry Visualizer Bridge
  * Manages WebSocket connectivity (/ws/hud and fallback /ws/telemetry),
@@ -9,6 +62,7 @@ class VisualizerBridge {
         this.canvas = document.getElementById('oscilloscope');
         this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
         this.arcReactor = null;
+        this.sfx = new JarvisSFX();
 
         // 32-Band Oscilloscope State
         this.bandCount = 32;
@@ -196,9 +250,15 @@ class VisualizerBridge {
     }
 
     updateState(state) {
+        const prevState = this.telemetry.state;
         this.telemetry.state = state;
         const badge = document.getElementById('assistant-state');
         if (badge) badge.textContent = state;
+
+        if (this.sfx && prevState !== state) {
+            if (state === 'LISTENING') this.sfx.play('listening');
+            else if (state === 'IDLE' && prevState === 'SPEAKING') this.sfx.play('done');
+        }
 
         const busyBtn = document.getElementById('busy-toggle-btn');
         const busyLabel = document.getElementById('busy-label');

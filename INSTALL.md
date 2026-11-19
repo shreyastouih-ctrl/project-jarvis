@@ -2,15 +2,20 @@
 
 **Official Repository**: [https://github.com/shreyastouih-ctrl/project-jarvis.git](https://github.com/shreyastouih-ctrl/project-jarvis.git)
 
-## Installation Options
+## Prerequisites
+- **Operating System**: Windows 10 / Windows 11 (64-bit)
+- **Python**: Python >= 3.11 (tested on Python 3.13)
+- Audio capture device (microphone) and output device (speakers or headphones)
+
+## Installation
 
 ### Option A: Windows MSI Installer (Recommended)
-Double-click the official standalone Windows Installer:
+Download and double-click the standalone installer:
 - **`dist/jarvis-assistant-0.1.0-win64.msi`**
-This provides a native Windows Setup Wizard that installs J.A.R.V.I.S. into `Program Files`, packages the runtime and dependencies, and creates a Start Menu & Desktop Shortcut automatically!
+This provides a native Windows Setup Wizard, installs to `Program Files`, and adds Start Menu & Desktop shortcuts.
 
-### Option B: Windows Batch Setup Wizard
-Double-click `install.bat` or run:
+### Option B: Windows Batch Launcher
+Double-click `install.bat` or run from Command Prompt:
 ```cmd
 install.bat
 ```
@@ -21,7 +26,7 @@ Open PowerShell and run:
 .\install.ps1
 ```
 
-### Option D: Manual Developer Setup
+### Option D: Manual Setup
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -33,6 +38,8 @@ pip install -e .
 Launch the assistant using the Desktop Shortcut created by the installer, or run:
 ```powershell
 python run_jarvis.py
+# Or via installed script entry point:
+jarvis
 # Or:
 start_jarvis.bat
 ```
